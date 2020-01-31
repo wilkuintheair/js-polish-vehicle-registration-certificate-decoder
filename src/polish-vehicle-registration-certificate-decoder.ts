@@ -131,14 +131,17 @@ export class PolishVehicleRegistrationCertificateDecoder {
 
     nrv2eDecompress(compressedInput, utf16Output)
     const textOutput = utf16Output.toString('utf16le')
+    this.data = PolishVehicleRegistrationCertificateDecoder.parseText(textOutput)
+  }
 
+  public static parseText(textOutput: string):PolishVehicleRegistrationCertificateData {
     const outputFields = textOutput.split(/\||\r?\n/)
 
     const isNewFormat = outputFields[0].startsWith('XX')
 
-    this.data = isNewFormat
-      ? new PolishVehicleRegistrationCertificateNewFormatData()
-      : new PolishVehicleRegistrationCertificateOldFormatData()
+    const data = isNewFormat
+        ? new PolishVehicleRegistrationCertificateNewFormatData()
+        : new PolishVehicleRegistrationCertificateOldFormatData()
 
     for (const key of Object.keys(fieldsDefinition) as FieldsDefinitionKeys[]) {
       const field = fieldsDefinition[key]
@@ -158,10 +161,11 @@ export class PolishVehicleRegistrationCertificateDecoder {
             const fuel = newDataField.value as PolishVehicleRegistrationCertificateFuelCode
             ;(newDataField as PolishVehicleRegistrationCertificateFuel).valueDescription = fuelCodes[fuel]
           }
-          this.data[key] = newDataField as any
+          data[key] = newDataField as any
         }
       }
     }
+    return data;
   }
 }
 
